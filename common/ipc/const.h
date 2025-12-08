@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <iostream>
 
-namespace Engine::Ipc {
+namespace Exchange::Ipc {
 
     // Configurations
     constexpr const char* SHM_BASE_PATH = "/dev/shm/"; 
