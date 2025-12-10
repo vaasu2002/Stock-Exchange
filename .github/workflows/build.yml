@@ -1,0 +1,39 @@
+name: CMake Build & Test
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ make
+
+      - name: Configure (CMake)
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cmake --build build --config Release -- -j$(nproc)
+
+      # If you use CTest (add_test in CMake), you can enable this step.
+      # - name: Run CTest
+      #   run: |
+      #     cd build
+      #     ctest --output-on-failure
+
+      - name: Run test_ipc_crash
+        run: |
+          chmod +x build/test_ipc_crash || true
+          ./build/test_ipc_crash
