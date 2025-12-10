@@ -6,7 +6,7 @@
 
 #include "exception.h"
 #include "const.h"
-
+#include "String.h"
 
 namespace Exchange::Ipc {
 
@@ -18,23 +18,23 @@ namespace Exchange::Ipc {
      */
     class ScopedFileLock {
         int mFd;
-        std::string mPath; 
+        Core::String mPath; 
     public:
         /**
          * The constructor ensures that Producers only fight other Producers, and Consumers only fight other Consumers
          */
-        ScopedFileLock(const std::string& name, bool isProducer) {
+        ScopedFileLock(const Core::String& name, bool isProducer) {
 
-            mPath = std::string(LOCK_BASE_PATH) + name + (isProducer ? ".prod.lock" : ".cons.lock");
+            mPath = Core::String(LOCK_BASE_PATH) + name + (isProducer ? ".prod.lock" : ".cons.lock");
 
             // Open lock file (create if needs be)
             // O_RDWR: read and write
             // O_CREAT: create if file does not exsits
             // O_CLOEXEC: close the file desciptoo when process exists
-            mFd = open(mPath.c_str(), O_RDWR | O_CREAT | O_CLOEXEC, 0666);
+            mFd = open(mPath.get(), O_RDWR | O_CREAT | O_CLOEXEC, 0666);
 
             if (mFd < 0) {
-                ENG_THROW("Failed to open lock file: %s", mPath.c_str());
+                ENG_THROW("Failed to open lock file: %s", mPath.get());
             }
 
             // LOCK_EX (Exclusive): This tells the Linux Kernel: "Only one file descriptor can hold a 
@@ -43,7 +43,7 @@ namespace Exchange::Ipc {
             // Fail immediately."
             if (flock(mFd, LOCK_EX | LOCK_NB) < 0) {
                 close(mFd);
-                ENG_THROW("Highlander Rule Violation: Another process holds the lock %s", mPath.c_str());
+                ENG_THROW("Highlander Rule Violation: Another process holds the lock %s", mPath.get());
             }
         }
 

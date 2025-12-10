@@ -3,20 +3,20 @@
 
 namespace Exchange::Ipc {
 
-    Producer::Producer(const std::string& name, uint32_t capacity) : SharedMemory(name, capacity, true), mLock(name, true) {
+    Producer::Producer(const Core::String& name, uint32_t capacity) : SharedMemory(name, capacity, true), mLock(name, true) {
         // Initialize header
         std::memset(mHeader, 0, sizeof(SharedHeader));
         std::strncpy(mHeader->signature, MAGIC, 32); // Set magic signature
 
         // Generate and set UUID
-        std::string sessionUuid = generateUuid();
+        Core::String sessionUuid = generateUuid();
 
-        const std::string uuidPath = "/tmp/"+mName+".uuid";
-        std::ofstream f(uuidPath, std::ios::trunc);
+        const Core::String uuidPath = "/tmp/" + mName + ".uuid";
+        std::ofstream f(uuidPath.get(), std::ios::trunc);
         f << sessionUuid;
         f.close();
 
-        std::strncpy(mHeader->uuid, sessionUuid.c_str(), 37);
+        std::strncpy(mHeader->uuid, sessionUuid.get(), 37);
         mHeader->capacity = capacity;
         mHeader->maxMsgSize  = MAX_MSG_SIZE;
         mHeader->writeIdx = 0;

@@ -4,7 +4,7 @@
 namespace Exchange::Ipc {
 
 
-    SharedMemory::SharedMemory(const std::string& name, uint32_t capacity, bool create)
+    SharedMemory::SharedMemory(const Core::String& name, uint32_t capacity, bool create)
             : mName("/" + name), mIsOwner(create) {
         
         // Calculate total size
@@ -22,13 +22,13 @@ namespace Exchange::Ipc {
             // reference counting. The physical RAM for that segment is not actually freed until every process (including
             // any lingering Consumers) has closed it or exited. However, since the name is gone, the Producer is free to
             // create a brand new segment with the same name immediately.
-            shm_unlink(name.c_str());
+            shm_unlink(name.get());
             
             // Creates a new shared memory object.
             // O_RDWR — open read/write.
             // 0666 — permissions: read/write for all users.
             // Returns a file descriptor in shmFd.
-            mFd = shm_open(name.c_str(), O_CREAT | O_RDWR, 0666);
+            mFd = shm_open(name.get(), O_CREAT | O_RDWR, 0666);
             if (mFd == -1) {
                 ENG_THROW("Producer: shm_open failed (create)");
             }
@@ -41,7 +41,7 @@ namespace Exchange::Ipc {
         } 
         else {
             // Consumer: Open existing
-            mFd = shm_open(name.c_str(), O_RDWR, 0666);
+            mFd = shm_open(name.get(), O_RDWR, 0666);
             if (mFd == -1) {
                 ENG_THROW("Consumer: shm_open failed (open existing)");
             }

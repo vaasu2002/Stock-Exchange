@@ -173,11 +173,11 @@ bool TEST3_producerCrashRecovery() {
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
             
             // Connect to first producer
-            std::string firstUuid;
+            Exchange::Core::String firstUuid;
             {
                 Consumer consumer(queueName, 64);
                 firstUuid = consumer.getSessionUuid();
-                log("Consumer[Child]", "Connected to producer 1, UUID: " + firstUuid, GREEN);
+                log("Consumer[Child]", "Connected to producer 1, UUID: " + firstUuid.toString(), GREEN);
                 
                 // Read a message
                 uint8_t buffer[4096];
@@ -206,13 +206,13 @@ bool TEST3_producerCrashRecovery() {
             try {
                 Consumer consumer(queueName, 64);
                 // If we get here, either the UUID matches (bad) or we're connecting to new session (good)
-                std::string secondUuid = consumer.getSessionUuid();
+                Exchange::Core::String secondUuid = consumer.getSessionUuid();
                 if (secondUuid == firstUuid) {
                     log("Consumer[Child]", "ERROR: Still on old UUID!", RED);
                     exit(1);
                 }
             } catch (const Engine::EngException& e) {
-                std::string errMsg = e.what();
+                Exchange::Core::String errMsg = e.what();
                 if (errMsg.find("Stale") != std::string::npos) {
                     detectedStale = true;
                     log("Consumer[Child]", "Detected stale queue as expected", GREEN);
@@ -223,8 +223,8 @@ bool TEST3_producerCrashRecovery() {
             std::this_thread::sleep_for(std::chrono::milliseconds(300));
             {
                 Consumer consumer(queueName, 64);
-                std::string secondUuid = consumer.getSessionUuid();
-                log("Consumer[Child]", "Connected to producer 2, UUID: " + secondUuid, GREEN);
+                Exchange::Core::String secondUuid = consumer.getSessionUuid();
+                log("Consumer[Child]", "Connected to producer 2, UUID: " + secondUuid.toString(), GREEN);
                 
                 if (secondUuid == firstUuid) {
                     log("Consumer[Child]", "ERROR: UUIDs should be different!", RED);

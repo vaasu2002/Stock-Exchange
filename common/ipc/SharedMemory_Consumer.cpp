@@ -3,7 +3,7 @@
 
 namespace Exchange::Ipc {
 
-    Consumer::Consumer(const std::string& name, uint32_t capacity)
+    Consumer::Consumer(const Core::String& name, uint32_t capacity)
         : SharedMemory(name, capacity, false), mLock(name, false) {
         
 
@@ -12,7 +12,7 @@ namespace Exchange::Ipc {
             ENG_THROW("Invalid IPC Header Signature");
         }
 
-        const std::string uuidPath = "/tmp/"+mName+".uuid";
+        const Core::String uuidPath = "/tmp/" + mName +".uuid";
         std::ifstream f(uuidPath);
         if (!f.is_open()) {
             ENG_THROW("UUID file not found");
@@ -51,8 +51,8 @@ namespace Exchange::Ipc {
         return msgLen;
     }
 
-    std::string Consumer::getSessionUuid() const {
-        return std::string(mHeader->uuid);
+    Core::String Consumer::getSessionUuid() const {
+        return Core::String(mHeader->uuid);
     }
 
 } // namespace Exchange::Ipc
