@@ -27,13 +27,48 @@ jobs:
         run: |
           cmake --build build --config Release -- -j$(nproc)
 
-      # If you use CTest (add_test in CMake), you can enable this step.
-      # - name: Run CTest
-      #   run: |
-      #     cd build
-      #     ctest --output-on-failure
-
-      - name: Run test_ipc_crash
+      - name: Run IPC Crash Recovery Test
         run: |
           chmod +x build/test_ipc_crash || true
           ./build/test_ipc_crash
+
+      - name: Start Gateway in Background
+        run: |
+          chmod +x build/Gateway || true
+          ./build/Gateway &
+          GATEWAY_PID=$!
+          echo "GATEWAY_PID=$GATEWAY_PID" >> $GITHUB_ENV
+          # Wait for gateway to start listening
+          sleep 2
+          
+      - name: Run Gateway Network Tests
+        run: |
+          chmod +x build/test_gateway || true
+          ./build/test_gateway
+          TEST_RESULT=$?
+          exit $TEST_RESULT
+
+      - name: Cleanup Gateway Process
+        if: always()
+        run: |
+          if [ ! -z "$GATEWAY_PID" ]; then
+            kill $GATEWAY_PID || true
+            wait $GATEWAY_PID 2>/dev/null || true
+          fi
+          # Kill any remaining Gateway processes
+          pkill -f "./build/Gateway" || true
+
+      - name: Run CTest (Optional)
+        if: false  # Disabled for now, enable if you want to use CTest
+        run: |
+          cd build
+          ctest --output-on-failure
+
+      - name: Upload Test Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: |
+            build/Testing/Temporary/
+            *.log
