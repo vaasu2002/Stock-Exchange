@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <vector>
 #include <atomic>
+#include <cstdlib>
 
 // ANSI color codes
 #define RESET   "\033[0m"
@@ -362,8 +363,12 @@ int main() {
     std::cout << MAGENTA << "     Gateway Network & FIX Protocol Tests" << RESET << std::endl;
     std::cout << MAGENTA << "========================================" << RESET << "\n" << std::endl;
     
+    // Start the Gateway in a background process
+    log("INFO", "Starting Gateway process...", YELLOW);
+    system("cd /workspaces/Stock-Exchange/build && ./Gateway > /tmp/gateway.log 2>&1 &");
+    
     log("INFO", "Waiting for gateway to start...", YELLOW);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
     
     int passed = 0;
     int total = 6;
