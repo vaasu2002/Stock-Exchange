@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Exchange>
+    <Gateway>
+        <!-- Network port on which the gateway listens for incoming FIX connections -->
+        <Port>9000</Port>
+
+        <!-- 
+            Queue used to transfer messages from the ingestion layer
+            (FIX protocol reader / consumer) to the delivery layer.
+            The delivery layer publishes messages to shared memory,
+            allowing other processes to consume them.
+        -->
+        <BlockingQueue> 
+            <!-- Maximum number of messages that can be buffered in the queue -->
+            <Size>4096</Size>
+        </BlockingQueue>
+
+        <Fix>
+            <MaxEventSize>100</MaxEventSize>
+            <BacklogSize>100</BacklogSize>
+        </Fix>
+
+    </Gateway>
+    <Sequencer>
+        <!-- Network port on which the sequencer listens for incoming FIX connections -->
+    </Sequencer>
+</Exchange>

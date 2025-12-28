@@ -1,7 +1,11 @@
 # Prototyping-IPC
 
 
-
+#Installation
+```bash
+chmod +x scripts/install-deps.sh
+./scripts/install-deps.sh 
+```
 
 mkdir build && cd build
 

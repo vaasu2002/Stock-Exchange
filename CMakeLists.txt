@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
-project(ProcessDemo)
+project(Exchange LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Find required packages
+find_package(tinyxml2 REQUIRED)
+find_package(Threads REQUIRED)
 
 # Include common directory
 include_directories(${CMAKE_SOURCE_DIR}/common)
@@ -14,28 +18,47 @@ set(IPC_SOURCES
     common/ipc/SharedMemory_Consumer.cpp
 )
 
+# Common non-header sources (scheduler, workers, etc.)
+set(COMMON_SOURCES
+    common/Scheduler/Scheduler.cpp
+    common/Scheduler/Worker/Worker.cpp
+)
+
+# Gateway network sources
+set(GATEWAY_NETWORK_SOURCES
+    Gateway/Network/TcpEpollListener.cpp
+)
+
 # Process 1 executable (Gateway)
-add_executable(Gateway Gateway/main.cpp ${IPC_SOURCES})
+add_executable(Gateway Gateway/main.cpp Gateway/Gateway.cpp ${IPC_SOURCES} ${COMMON_SOURCES} ${GATEWAY_NETWORK_SOURCES})
 target_include_directories(Gateway PRIVATE ${CMAKE_SOURCE_DIR}/common)
 target_include_directories(Gateway PRIVATE ${CMAKE_SOURCE_DIR}/common/ipc)
 target_include_directories(Gateway PRIVATE ${CMAKE_SOURCE_DIR}/common/Logger)
-target_link_libraries(Gateway pthread)
+target_include_directories(Gateway PRIVATE ${CMAKE_SOURCE_DIR}/common/xml)
+target_include_directories(Gateway PRIVATE ${CMAKE_SOURCE_DIR}/common/Scheduler)
+target_include_directories(Gateway PRIVATE ${CMAKE_SOURCE_DIR}/Gateway)
+target_include_directories(Gateway PRIVATE ${CMAKE_SOURCE_DIR}/Gateway/Network)
+
+target_link_libraries(Gateway PRIVATE tinyxml2 Threads::Threads)
 
 # Process 2 executable
-add_executable(process2 process2/main.cpp ${IPC_SOURCES})
+add_executable(process2 process2/main.cpp ${IPC_SOURCES} ${COMMON_SOURCES})
 target_include_directories(process2 PRIVATE ${CMAKE_SOURCE_DIR}/common)
 target_include_directories(process2 PRIVATE ${CMAKE_SOURCE_DIR}/common/ipc)
 target_include_directories(process2 PRIVATE ${CMAKE_SOURCE_DIR}/common/Logger)
+target_link_libraries(process2 PRIVATE Threads::Threads)
 
 # Test executable - IPC Queue Connection and Crash Recovery Test
-add_executable(test_ipc_crash tests/test_ipc_crash.cpp ${IPC_SOURCES})
+add_executable(test_ipc_crash tests/test_ipc_crash.cpp ${IPC_SOURCES} ${COMMON_SOURCES})
 target_include_directories(test_ipc_crash PRIVATE ${CMAKE_SOURCE_DIR}/common)
 target_include_directories(test_ipc_crash PRIVATE ${CMAKE_SOURCE_DIR}/common/ipc)
+target_link_libraries(test_ipc_crash PRIVATE Threads::Threads)
 
 # Test executable - Gateway Network and FIX Protocol Test
 add_executable(test_gateway tests/test_gateway.cpp)
 target_include_directories(test_gateway PRIVATE ${CMAKE_SOURCE_DIR}/common)
 target_include_directories(test_gateway PRIVATE ${CMAKE_SOURCE_DIR}/common/Logger)
+target_link_libraries(test_gateway PRIVATE Threads::Threads)
 
 # Enable testing
 enable_testing()

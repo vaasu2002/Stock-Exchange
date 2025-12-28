@@ -27,7 +27,6 @@ namespace Exchange::Core {
                 ENG_THROW("Capacity must be > 0");
             }
         }
-
         // Disabling copy constructor
         MutexBlockingQueue (const MutexBlockingQueue &) = delete;
         // Disabling copy operation
@@ -87,7 +86,7 @@ namespace Exchange::Core {
             // Wait until here is data in the ueue or closed is triggered
             m_NotEmptyCv.wait(lock, [&] {
                 return (!m_Queue.empty() || m_Closed);
-                });
+            });
 
             // To check if we have data to pop after being notified coz of closed
             if (m_Queue.empty()) {
@@ -100,7 +99,6 @@ namespace Exchange::Core {
             m_NotFullCv.notify_one();
             return true;
         }
-
 
         T pop() override {
             T value;
