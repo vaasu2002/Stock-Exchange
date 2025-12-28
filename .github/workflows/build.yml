@@ -18,6 +18,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake g++ make
+          chmod +x scripts/install-deps.sh
+          ./scripts/install-deps.sh
 
       - name: Configure (CMake)
         run: |
