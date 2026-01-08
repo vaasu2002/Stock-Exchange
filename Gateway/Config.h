@@ -10,12 +10,14 @@ namespace Exchange::Gateway {
         Core::String mBlockingQueueSize;
         Core::String mMaxFixEventSize;
         Core::String mBacklogSize;
+        Core::String mIpcQueueScheduler;
 
         Config(const tinyxml2::XMLElement* element):XMLNode(element){
             mPort = getChild("Port").get();
             mBlockingQueueSize = getChild("BlockingQueue").getChild("Size").get();
             mMaxFixEventSize = getChild("Fix").getChild("MaxEventSize").get();
             mBacklogSize = getChild("Fix").getChild("BacklogSize").get();
+            mIpcQueueScheduler = getChild("Ipc").getChild("SchedulerQueue").get();
         }
     public:
         // Delete copy and move constructor to enforce singleton
@@ -42,6 +44,7 @@ namespace Exchange::Gateway {
         size_t blockingQueueSize() const {return std::stoul(mBlockingQueueSize.toString());}
         size_t maxFixEventSize() const {return std::stoul(mMaxFixEventSize.toString());}
         size_t backlogSize() const {return std::stoul(mBacklogSize.toString());}
+        Core::String ipcQueueScheduler() const { return mIpcQueueScheduler; }
 
     private:
         static Config*& getInstance() {

@@ -42,7 +42,8 @@ namespace Exchange::Gateway::Network {
         char buffer[1000];
 
         while (!stopFlag->load(std::memory_order_acquire)) {
-
+            
+            // Blocking call, until an event is received
             int count = epoll_wait(mEpollFd, events, gCfg().maxFixEventSize(), 1000);
             if (count <= 0) continue;
 
