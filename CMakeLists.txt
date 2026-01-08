@@ -46,7 +46,9 @@ add_executable(process2 process2/main.cpp ${IPC_SOURCES} ${COMMON_SOURCES})
 target_include_directories(process2 PRIVATE ${CMAKE_SOURCE_DIR}/common)
 target_include_directories(process2 PRIVATE ${CMAKE_SOURCE_DIR}/common/ipc)
 target_include_directories(process2 PRIVATE ${CMAKE_SOURCE_DIR}/common/Logger)
-target_link_libraries(process2 PRIVATE Threads::Threads)
+target_include_directories(process2 PRIVATE ${CMAKE_SOURCE_DIR}/common/xml)
+target_include_directories(process2 PRIVATE ${CMAKE_SOURCE_DIR}/process2/Sources)
+target_link_libraries(process2 PRIVATE tinyxml2 Threads::Threads)
 
 # Test executable - IPC Queue Connection and Crash Recovery Test
 add_executable(test_ipc_crash tests/test_ipc_crash.cpp ${IPC_SOURCES} ${COMMON_SOURCES})

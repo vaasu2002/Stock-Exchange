@@ -8,6 +8,7 @@
 #include "enum.h"
 #include "Exception.h"
 #include "ipc/SharedMemory.h"
+#include "Config/Config.h"
 
 int main(int argc, char* argv[]) {
 
@@ -18,30 +19,36 @@ int main(int argc, char* argv[]) {
     }
 
     try {
-        std::cout << "[Consumer] Launching consumer... \n";
+        Exchange::Core::XMLReader reader("../config.xml");
+        Exchange::Sequencer::Config::init(reader.getNode("Sequencer"));
+        std::cout<<Exchange::Sequencer::Config::instance().PORT<<std::endl;
+        std::cout<<Exchange::Sequencer::Config::instance().BLOCKING_QUEUE_SIZE<<std::endl;
+        std::cout<<Exchange::Sequencer::Config::instance().IPC_QUEUE_GATEWAY.toString()<<std::endl;
+        std::cout<<Exchange::Sequencer::Config::instance().IPC_QUEUE_ENGINE.toString()<<std::endl;
+        // std::cout << "[Consumer] Launching consumer... \n";
 
-        // Attempt to Connect
-        // This will THROW if the Producer hasn't started yet (shm_open fails)
-        Exchange::Ipc::Consumer consumer("queue");
-        std::cout << "Connected! Session UUID: " << consumer.getSessionUuid() << "\n";
+        // // Attempt to Connect
+        // // This will THROW if the Producer hasn't started yet (shm_open fails)
+        // Exchange::Ipc::Consumer consumer("queue");
+        // std::cout << "Connected! Session UUID: " << consumer.getSessionUuid() << "\n";
 
-        std::vector<uint8_t> buf(Exchange::Ipc::MAX_MSG_SIZE);
-        while (true) {
-            uint32_t n = consumer.read(buf.data(), static_cast<uint32_t>(buf.size()));
-            if (n == 0) {
-                // no message -- sleep/yield or continue polling
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                continue;
-            }
-            Exchange::Ipc::Msg::IpcMessage msg;
-            if (!Exchange::Ipc::Msg::IpcMessage::decode(buf.data(), n, msg)) {
-                // handle decode error
-                continue;
-            }
+        // std::vector<uint8_t> buf(Exchange::Ipc::MAX_MSG_SIZE);
+        // while (true) {
+        //     uint32_t n = consumer.read(buf.data(), static_cast<uint32_t>(buf.size()));
+        //     if (n == 0) {
+        //         // no message -- sleep/yield or continue polling
+        //         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        //         continue;
+        //     }
+        //     Exchange::Ipc::Msg::IpcMessage msg;
+        //     if (!Exchange::Ipc::Msg::IpcMessage::decode(buf.data(), n, msg)) {
+        //         // handle decode error
+        //         continue;
+        //     }
 
-            // Process message
-            Exchange::Ipc::Msg::printMessage(msg);
-        }
+        //     // Process message
+        //     Exchange::Ipc::Msg::printMessage(msg);
+        // }
         
     } catch(Engine::EngException& ex) {
         // Producer likely hasn't started yet, or crashed and we lost the link.

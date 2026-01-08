@@ -20,8 +20,28 @@
             <BacklogSize>100</BacklogSize>
         </Fix>
 
+        <Ipc>
+            <SchedulerQueue>IPC_QUEUE_GATEWAY_TO_SEQUENCER</SchedulerQueue>
+        </Ipc>
     </Gateway>
     <Sequencer>
-        <!-- Network port on which the sequencer listens for incoming FIX connections -->
+        <Port>9001</Port>
+
+        <!-- 
+            Queue used to transfer messages from the ingestion layer (Gateway message reader)
+            to the sequencing layer which retrieves incoming order messages from this queue,
+            assigns a unique, strictly increasing sequence number to each order, and appends the
+            sequenced order to a persistent append-only log (for durability and recovery).
+            Once persisted, the sequenced order is forwarded to the matching engine (seperate process).
+        -->
+        <BlockingQueue> 
+            <!-- Maximum number of messages that can be buffered in the queue -->
+            <Size>4096</Size>
+        </BlockingQueue>
+
+        <Ipc>
+            <SequencerQueue>IPC_QUEUE_GATEWAY_TO_SEQUENCER</SequencerQueue>
+            <MatchingEngineQueue>IPC_QUEUE_SEQUENCER_TO_ENGINE</MatchingEngineQueue>
+        </Ipc>
     </Sequencer>
 </Exchange>
