@@ -9,6 +9,7 @@
 #include "Exception.h"
 #include "ipc/SharedMemory.h"
 #include "Config/Config.h"
+#include "IPC/Consumer.h"
 
 int main(int argc, char* argv[]) {
 
@@ -25,8 +26,9 @@ int main(int argc, char* argv[]) {
         std::cout<<Exchange::Sequencer::Config::instance().BLOCKING_QUEUE_SIZE<<std::endl;
         std::cout<<Exchange::Sequencer::Config::instance().IPC_QUEUE_GATEWAY.toString()<<std::endl;
         std::cout<<Exchange::Sequencer::Config::instance().IPC_QUEUE_ENGINE.toString()<<std::endl;
-        // std::cout << "[Consumer] Launching consumer... \n";
-
+        std::cout << "[Consumer] Launching consumer... \n";
+        Exchange::Sequencer::Ipc::Consumer sequencerConsumer;
+        sequencerConsumer.run();
         // // Attempt to Connect
         // // This will THROW if the Producer hasn't started yet (shm_open fails)
         // Exchange::Ipc::Consumer consumer("queue");
